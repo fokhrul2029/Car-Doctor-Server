@@ -24,6 +24,15 @@ async function run() {
   try {
     // await client.connect();
 
+    const database = client.db("Car-Doctor");
+    const services = database.collection("services");
+
+    app.get("/services", async (req, res) => {
+      const cursor = services.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log("Database connection success!");
   } finally {
