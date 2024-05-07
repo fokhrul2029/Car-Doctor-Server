@@ -55,6 +55,24 @@ async function run() {
       res.send(result);
     });
 
+    app.post("/bookings", async (req, res) => {
+      const booking = req.body;
+      const result = await bookings.insertOne(booking);
+      res.send(result);
+    });
+
+    app.patch("/bookings/:id", async (req, res) => {
+      const id = req.params.id;
+      const status = req.body.status; 
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          status: status,
+        },
+      };
+      const result = await bookings.updateOne(filter, updateDoc);
+      res.send(result);
+    });
     app.delete("/bookings/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -62,11 +80,6 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/bookings", async (req, res) => {
-      const booking = req.body;
-      const result = await bookings.insertOne(booking);
-      res.send(result);
-    });
     // await client.db("admin").command({ ping: 1 });
     console.log("Database connection success!");
   } finally {
