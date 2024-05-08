@@ -11,7 +11,11 @@ const port = process.env.PORT || 3000;
 // MiddleWare
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: [
+      // "http://localhost:5173",
+      "https://car-doctor-apps.web.app",
+      "https://car-doctor-apps.firebaseapp.com",
+    ],
     credentials: true,
   })
 );
@@ -42,8 +46,8 @@ const verifyToken = async (req, res, next) => {
     }
     console.log("Value of the token: ", decoded);
     req.decoded = decoded;
+    next();
   });
-  next();
 };
 
 async function run() {
