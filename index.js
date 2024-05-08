@@ -37,12 +37,11 @@ const verifyToken = async (req, res, next) => {
   }
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
-      console.log("Found the error")
-      console.log("Error is:", err);
-      return res.send({ message: "Unauthorized!" });
+      console.log("The Error is:", err);
+      return res.status(401).send({ message: "Unauthorized!" });
     }
     console.log("Value of the token: ", decoded);
-    req.user = decoded;
+    req.decoded = decoded;
   });
   next();
 };
@@ -59,16 +58,23 @@ async function run() {
 
     app.post("/jwt", async (req, res) => {
       const user = req.body;
-      console.log("User value is: ",user);
+      console.log("User value is: ", user);
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "10s",
+        expiresIn: "5s",
       });
       res
         .cookie("token", token, {
           httpOnly: true,
           secure: false,
+          sameSite: "none",
         })
         .send({ success: true });
+    });
+
+    app.post("/logout", async (req, res) => {
+      const user = req.body;
+      console.log("Logout Success: ", user);
+      res.clearCookie("token", { maxAge: 0 }).send({ success: true });
     });
 
     // Service related Api
@@ -90,8 +96,9 @@ async function run() {
 
     app.get("/bookings", verifyToken, async (req, res) => {
       // console.log("my token", req.cookies.token);
-      console.log("valid User:", req.user);
-      if (req.query?.email !== req.user?.email) {
+      // console.log("valid User:", req.decoded);
+      console.log("This is Routes");
+      if (req.query?.email !== req.decoded?.email) {
         return res.status(403).send({ message: "Forbidden Access!" });
       }
       let query = {};
